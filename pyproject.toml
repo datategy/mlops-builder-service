@@ -1,0 +1,84 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = "--strict-markers"
+markers = [
+    "slow: mark tests that take a long time to run",
+    "asyncio: mark tests that are ran async",
+    "integration: mark integration tests"
+]
+
+[project]
+name = "mlops-builder-service"
+version = "0.0.1"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic==2.10.*",  # use BaseModel for parsing and check model parameters
+    "pydantic-settings==2.7.*",  # read env var automatically
+    "pyyaml",  # read logger config files
+    "uvicorn==0.34.0",
+    "fastapi==0.115.*",
+    "papai-unified-storage~=0.16.2",  # storage interface
+    "joblib==1.4.*",  # data writer / loader
+    "sqlalchemy==2.0.*",  # database connection
+    "psycopg2-binary==2.9.*",  # database connection
+    "pika==1.3.2",  # dependency for celery to listen on rabbitmq broker
+    "celery==5.4.0",
+    "httpx==0.28.*",  # send requests
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+  "python-dotenv",
+]
+dev = [
+    "pre-commit",
+    "ipython",  # for notebooks development
+    "ipykernel",  # for notebooks development
+    "mypy",  # static type checker
+]
+
+[tool.ruff]
+line-length = 90
+indent-width = 4
+
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+
+[tool.ruff.lint]
+# Only ignore variables named "_".
+dummy-variable-rgx = "^_$"
+ignore = [
+    "COM812",   # Trailing comma missing
+    "D1",       # Missing docstrings
+    "D417",     # Missing argument description in the docstring
+    "E203",     # Whitespace before punctuation
+    "N806",     # Variable lowercase
+    "SLF001",   # Private member accessed
+]
+
+[tool.ruff.lint.flake8-annotations]
+ignore-fully-untyped = true
+mypy-init-return = true
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+max-args = 10
+max-positional-args = 6
