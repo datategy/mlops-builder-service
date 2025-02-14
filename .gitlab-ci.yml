@@ -1,0 +1,129 @@
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+
+stages:
+  - check
+  - dependencies
+  - build
+  - test
+  - analysis
+
+ruff-linter:
+  stage: check
+  image: registry.gitlab.com/pipeline-components/ruff:0.27.0
+  dependencies: []
+  script:
+    - ruff check .
+    - ruff check . --output-format json --output-file ruff.json
+    - ruff check . --output-format gitlab --output-file ruff.gitlab.json
+  artifacts:
+    when: always
+    expire_in: 1 month
+    reports:
+      codequality: ruff.gitlab.json
+    paths:
+      - ruff.json
+      - ruff.gitlab.json
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+ruff-formatter:
+  stage: check
+  image: registry.gitlab.com/pipeline-components/ruff:0.27.0
+  dependencies: []
+  script:
+    - pip install ruff
+    - ruff format . --check
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+create-virtual-env:
+  stage: dependencies
+  image: amd64/python:3.13-slim-bookworm
+  script: |
+      if [ ! -f .venv/bin/activate ]; then
+            python -m venv --upgrade-deps .venv
+      fi
+      source .venv/bin/activate
+      python -m pip install -e .[test]
+  artifacts:
+    paths:
+      - .venv
+    expire_in: 1h
+  cache:
+    key: mlops-builder-service-venv
+    paths:
+      - .venv
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+tests:
+  stage: test
+  image: amd64/python:3.13-slim-bookworm
+  dependencies:
+    - create-virtual-env
+  script:
+    - source .venv/bin/activate
+    - pytest --junit-xml=junit-pytest.xml --cov=papai_unified_storage --cov=connections --cov-report="xml:coverage.xml" --cov-report="term" tests --tb=short --color=no -s --durations 0 --durations-min 1
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    when: always
+    paths:
+      - coverage.xml
+      - junit-pytest.xml
+    reports:
+      junit:
+        - junit-pytest.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+mypy:
+  stage: analysis
+  image: amd64/python:3.13-slim-bookworm
+  dependencies:
+    - create-virtual-env
+  script:
+    - source .venv/bin/activate
+    - pip install mypy mypy-gitlab-code-quality
+    - mypy --install-types --non-interactive -p src > mypy-output.txt || true
+    - cat mypy-output.txt
+    - mypy-gitlab-code-quality < mypy-output.txt > mypy.codequality.json
+  allow_failure: true
+  artifacts:
+    expire_in: 1 month
+    when: always
+    reports:
+      codequality: mypy.codequality.json
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+.run-sonar-scanner: &run-sonar-scanner
+  - sonar-scanner
+    -Dsonar.projectKey=papai-mlops-builder-service
+    -Dsonar.sources=papai_unified_storage
+    -Dsonar.tests=tests
+    -Dsonar.host.url=https://sonarqube.octocity.net
+    -Dsonar.login=$SONARQUBE_TOKEN
+    -Dsonar.python.version=3.13
+    -Dsonar.projectVersion=$SONARQUBE_VERSION
+    -Dsonar.python.coverage.reportPaths="coverage.xml"
+    -Dsonar.python.mypy.reportPaths="mypy.txt"
+
+.sonarqube-default:
+  stage: analysis
+  image: sonarsource/sonar-scanner-cli
+  needs:
+    - tests
+    - mypy
+
+sonarqube-on-dev-commit:
+  extends: .sonarqube-default
+  script:
+    - export SONARQUBE_VERSION="dev"
+    - *run-sonar-scanner
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
