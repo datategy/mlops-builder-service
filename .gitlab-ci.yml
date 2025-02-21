@@ -1,13 +1,10 @@
-workflow:
-  auto_cancel:
-    on_new_commit: interruptible
-
-stages:
-  - check
-  - dependencies
-  - build
-  - test
-  - analysis
+include:
+  - project: "devops/templates/gitlab-ci"
+    ref: 0.12.0
+    file: "/templates/.repo-check.yml"
+  - project: "devops/templates/gitlab-ci"
+    ref: 0.12.0
+    file: "/templates/.sonarqube.yml"
 
 ruff-linter:
   stage: check
@@ -42,11 +39,11 @@ create-virtual-env:
   stage: dependencies
   image: amd64/python:3.13-slim-bookworm
   script: |
-      if [ ! -f .venv/bin/activate ]; then
-            python -m venv --upgrade-deps .venv
-      fi
-      source .venv/bin/activate
-      python -m pip install -e .[test]
+    if [ ! -f .venv/bin/activate ]; then
+          python -m venv --upgrade-deps .venv
+    fi
+    source .venv/bin/activate
+    python -m pip install -e .[test]
   artifacts:
     paths:
       - .venv
@@ -98,32 +95,5 @@ mypy:
     when: always
     reports:
       codequality: mypy.codequality.json
-  rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
-
-.run-sonar-scanner: &run-sonar-scanner
-  - sonar-scanner
-    -Dsonar.projectKey=papai-mlops-builder-service
-    -Dsonar.sources=papai_unified_storage
-    -Dsonar.tests=tests
-    -Dsonar.host.url=https://sonarqube.octocity.net
-    -Dsonar.login=$SONARQUBE_TOKEN
-    -Dsonar.python.version=3.13
-    -Dsonar.projectVersion=$SONARQUBE_VERSION
-    -Dsonar.python.coverage.reportPaths="coverage.xml"
-    -Dsonar.python.mypy.reportPaths="mypy.txt"
-
-.sonarqube-default:
-  stage: analysis
-  image: sonarsource/sonar-scanner-cli
-  needs:
-    - tests
-    - mypy
-
-sonarqube-on-dev-commit:
-  extends: .sonarqube-default
-  script:
-    - export SONARQUBE_VERSION="dev"
-    - *run-sonar-scanner
   rules:
     - if: $CI_COMMIT_BRANCH == "develop"
