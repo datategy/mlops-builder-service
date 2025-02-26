@@ -1,0 +1,52 @@
+services:
+  postgres:
+    container_name: deployment-db
+    image: postgres:17.3-bookworm
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "deployment-user"
+      POSTGRES_PASSWORD: "deployment-password"
+      POSTGRES_DB: "deployment"
+    volumes:
+      - ./docker/data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    restart: always
+    ports:
+      - "8082:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - ./docker/data/postgres:/var/lib/postgresql/data
+    configs:
+      - source: servers.json
+        target: /pgadmin4/servers.json
+      - source: pgpass
+        target: /pgpass
+
+configs:
+  pgpass:
+    content: postgres:5432:*:deployment-user:deployment-password
+  servers.json:
+    content: |
+      {"Servers": {"1": {
+        "Group": "Servers",
+        "Name": "local postgres",
+        "Host": "postgres",
+        "Port": 5432,
+        "MaintenanceDB": "postgres",
+        "Username": "deployment-user",
+        "PassFile": "/pgpass",
+        "SSLMode": "prefer"
+      }}}
