@@ -21,6 +21,7 @@ requires-python = ">=3.13"
 dependencies = [
     "pydantic==2.10.*",  # use BaseModel for parsing and check model parameters
     "pydantic-settings==2.7.*",  # read env var automatically
+    "python-slugify~=8.0.4",  # create slug names
     "pyyaml",  # read logger config files
     "uvicorn==0.34.0",
     "fastapi==0.115.*",
@@ -48,7 +49,7 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 90
+line-length = 100
 indent-width = 4
 
 [tool.ruff.format]
