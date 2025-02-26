@@ -29,3 +29,12 @@ class Model(BaseModel):
             train_set_parquet_file=self.train_set_parquet_file,
             test_set_parquet_file=self.test_set_parquet_file,
         )
+
+    def get_artifact_paths(self):
+        return (
+            self.requirements_file,
+            self.weight_file,
+            self.inference_code_folder,
+            self.train_set_parquet_file,
+            self.test_set_parquet_file,
+        )

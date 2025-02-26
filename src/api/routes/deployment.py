@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from models.model_interface import ModelInterface
 from schemas.organisms.model_interface import NewModelInterface
+from services.remote_storage import assert_files_exist
 from src.utils.database import session_manager
 
 router = APIRouter(tags=["model_interface"])
@@ -16,6 +17,9 @@ async def create_new_model_interface(model_interface: NewModelInterface):
         session.add(model_interface_db)
         session.flush()
         model_interface_db.compute_slug()
+
+    for model in model_interface.models:
+        assert_files_exist(str(path) for path in model.get_artifact_paths())
 
     # trigger gitlab model_interface
 
