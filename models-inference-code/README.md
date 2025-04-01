@@ -19,3 +19,10 @@ For models trained in PapAI, there are three level of requirements:
 - requirements for running the webserver (common for all models)
 - requirements for loading the model (common for all models)
 - requirements for running the model (specific for all models)
+
+## Run a built model
+
+If you want to run a deployed model:
+
+- you need to build it first with `docker build -f models-inference-code/papai/regression-classification-clustering/Dockerfile models-inference-code/ -t image_name:tag`
+- Then you can launch the command `docker run -p host_port:8000 -d image-name:tag`

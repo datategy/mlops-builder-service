@@ -2,7 +2,8 @@ import os
 
 import joblib
 import numpy as np
-from prediction_types import (
+
+from .prediction_types import (
     BinaryClassificationPrediction,
     ClusteringPrediction,
     MultiClassificationPrediction,
@@ -22,8 +23,6 @@ class MLModel:
         """Load the model from disk."""
         with open(self.model_path, "rb") as f:
             self.model = joblib.load(f)
-            print(type(self.model))
-        print(f"Model loaded from {self.model_path}")
 
     def predict(
         self, features: TabularMLData

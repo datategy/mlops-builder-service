@@ -1,2 +1,3 @@
 # Minimal requirements to load models trained in PapAI
 joblib~=1.4.2
+pandas

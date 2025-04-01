@@ -61,7 +61,7 @@ def use_model(trained_model: Pipeline):
 
 
 def test_predict_endpoint(use_model):
-    from app import predict
+    from .app import predict
 
     data = {"feature1": [1.0], "feature2": [2.0], "feature3": [3.0]}
 

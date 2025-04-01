@@ -1,9 +1,11 @@
-from typing import Annotated, Literal
+from typing import Annotated, Literal, TypedDict
 
 import pandas as pd
 from fastapi import Body, FastAPI
-from model import model
-from prediction_types import (
+from pydantic import BaseModel
+
+from inference.model import model
+from inference.prediction_types import (
     BinaryClassificationPrediction,
     ClusteringPrediction,
     MultiClassificationPrediction,
@@ -11,7 +13,6 @@ from prediction_types import (
     RegressionPrediction,
     TabularMLData,
 )
-from pydantic import BaseModel
 
 app = FastAPI(title="Model API", description="API for model inference")
 
@@ -29,9 +30,13 @@ def health_check() -> HealthCheckResponse:
     return HealthCheckResponse(status="healthy")
 
 
+class InputData(TypedDict):
+    features: TabularMLData
+
+
 @app.post("/predict")
 def predict(
-    data: Annotated[TabularMLData, Body()],
+    data: Annotated[InputData, Body()],
 ) -> (
     ClusteringPrediction
     | RegressionPrediction
@@ -39,6 +44,6 @@ def predict(
     | MultiClassificationPrediction
     | BinaryClassificationPrediction
 ):
-    features = pd.DataFrame(data)
+    features = pd.DataFrame(data["features"])
     prediction = model.predict(features)
     return prediction

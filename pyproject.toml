@@ -48,6 +48,9 @@ dev = [
     "mypy",  # static type checker
 ]
 
+[tool.mypy]
+exclude = 'models-inference-code'
+
 [tool.ruff]
 line-length = 100
 indent-width = 4
