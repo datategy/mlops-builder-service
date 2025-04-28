@@ -1,9 +1,9 @@
 include:
   - project: "devops/templates/gitlab-ci"
-    ref: 0.15.0
+    ref: 0.25.0
     file: "/templates/.repo-check.yml"
   - project: "devops/templates/gitlab-ci"
-    ref: 0.15.0
+    ref: 0.25.0
     file: "/templates/.sonarqube.yml"
 
 ruff-linter:
