@@ -2,6 +2,3 @@ include:
   - project: "devops/templates/gitlab-ci"
     ref: 0.29.1
     file: "/templates/.python.yml"
-  - project: "devops/templates/gitlab-ci"
-    ref: 0.29.1
-    file: "/templates/.sonarqube.yml"
