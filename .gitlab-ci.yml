@@ -1,4 +1,19 @@
 include:
   - project: "devops/templates/gitlab-ci"
     ref: 0.29.1
+    file: "/templates/.docker-build.yml"
+    inputs:
+      docker-registry-image-name: datategy/mlops-builder-service
+      kaniko-dockerfile-name: docker/Dockerfile
+      ansible-deploy-enabled: false
+  - project: "devops/templates/gitlab-ci"
+    ref: 0.29.1
     file: "/templates/.python.yml"
+    inputs:
+      python-image-version: 3.13-bookworm
+      python-req-folder: requirements
+      python-req-enabled: false
+      python-tests-enabled: true
+      python-req-file: default.txt
+      python-req-tests-file: all-test.txt
+      sonar-python-version: "3.13"
