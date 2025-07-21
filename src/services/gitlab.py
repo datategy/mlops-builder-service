@@ -65,12 +65,12 @@ def fetch_pipeline_logs(pipeline_id: int) -> str:
     return "\n".join(logs)
 
 
-def run_pipeline(variables: list[GitLabVariable] | dict[str, Any]) -> int:
+def run_pipeline(variables: dict[str, str]) -> int:
     """Run a GitLab pipeline.
 
     Parameters
     ----------
-    variables : list[GitLabVariable]
+    variables : dict[str, str]
         The variables to be used in the pipeline.
 
     Returns
@@ -78,8 +78,7 @@ def run_pipeline(variables: list[GitLabVariable] | dict[str, Any]) -> int:
     int
         The ID of the pipeline that was created.
     """
-    if isinstance(variables, dict):
-        variables = dict_to_gitlab_variables(variables)
+    variables = dict_to_gitlab_variables(variables)
 
     payload = [asdict(var) for var in variables]
     response: httpx.Response = gitlab_request("post", post_pipeline_creation_url(), json=payload)

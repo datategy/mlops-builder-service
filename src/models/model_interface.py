@@ -1,25 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import datetime
 
 from slugify import slugify
 from sqlalchemy import JSON, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.schemas.atoms.life_status_enum import LifeStatus
+from src.schemas.atoms.use_case_enum import UseCase
 
 from ._base import Base
-
-if TYPE_CHECKING:
-    import datetime
-
-    from httpx import URL
-
-    from src.schemas.atoms.use_case_enum import UseCase
-
-    from .deployment_version import DeploymentVersion
-    from .listener_interface import ListenerInterface
-    from .model import Model
+from .deployment_version import DeploymentVersion
+from .listener_interface import ListenerInterface
+from .model import Model
 
 
 class ModelInterface(Base):
@@ -46,7 +39,7 @@ class ModelInterface(Base):
 
     deployment_versions: Mapped[list[DeploymentVersion]] = relationship("DeploymentVersion")
 
-    url: Mapped[URL] = mapped_column(String(2000), nullable=True)
+    url: Mapped[str] = mapped_column(String(2000), nullable=True)
     """URL of the model interface. If None, the model interface is not deployed."""
 
     created_on: Mapped[datetime.datetime] = mapped_column(server_default=func.now())

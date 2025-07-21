@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from models.model_interface import ModelInterface
 from src.models.model import Model
+from src.models.model_interface import ModelInterface
 from src.schemas.atoms.life_status_enum import GitLabLifeStatuses
 from src.utils.database import session_manager
 

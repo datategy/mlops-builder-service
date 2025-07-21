@@ -28,18 +28,6 @@ class Model(Base):
     )
     versioned_model_weight: Mapped[VersionedModelWeight] = relationship("VersionedModelWeight")
 
-    requirements_file: Mapped[Path] = mapped_column(nullable=False)
-    weight_file: Mapped[Path] = mapped_column(nullable=False)
-    inference_code_folder: Mapped[Path] = mapped_column(nullable=False)
-    """
-    Folder containing the inference code. The entrypoint code must be in a file named
-    `inference.py`. The file must define at least 3 functions: `load_model`, `predict` and
-    `unload_model` (which could raise a `NotImplemented` error).
-    """
-
-    train_set_parquet_file: Mapped[Path] = mapped_column(nullable=True)
-    """Path to the parquet file containing the training set. If None, analysis is not possible."""
-    test_set_parquet_file: Mapped[Path] = mapped_column(nullable=True)
-    """Path to the parquet file containing the training set. If None, analysis is not possible."""
+    artefacts_path: Mapped[Path] = mapped_column(nullable=False)
 
     life_status: Mapped[LifeStatus] = mapped_column(nullable=False, default=LifeStatus.PENDING)

@@ -1,16 +1,17 @@
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter
 
-from models.model_interface import ModelInterface
-from schemas.organisms.model_interface import NewModelInterface
-from services.remote_storage import assert_files_exist
+from src.models.model_interface import ModelInterface
+from src.schemas.organisms.model_interface import NewModelInterface
+from src.services.artefacts import read_ml_model_artefact
 from src.utils.database import session_manager
 
 router = APIRouter(tags=["model_interface"])
 
 
-@router.post("/model-interface")
+@router.post("/model-deployment/new")
 async def create_new_model_interface(model_interface: NewModelInterface):
     model_interface_db = model_interface.create_db_model()
     with session_manager() as session:
@@ -19,7 +20,9 @@ async def create_new_model_interface(model_interface: NewModelInterface):
         model_interface_db.compute_slug()
 
     for model in model_interface.models:
-        assert_files_exist(str(path) for path in model.get_artifact_paths())
+        ml_model_artefact = read_ml_model_artefact(model.artefacts_path)
+
+        artefacts_to_package: list[Path]
 
     # trigger gitlab model_interface
 
