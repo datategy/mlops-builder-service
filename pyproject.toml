@@ -48,6 +48,17 @@ dev = [
     "mypy",  # static type checker
 ]
 
+[dependency-groups]
+all-dev = [
+    "default",
+    "dev",
+    "test",
+]
+all-test = [
+    "default",
+    "test",
+]
+
 [tool.mypy]
 exclude = 'models-inference-code'
 
