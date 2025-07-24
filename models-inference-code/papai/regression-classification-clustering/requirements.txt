@@ -1,0 +1,6 @@
+pandas
+fastapi
+pydantic==2
+joblib
+numpy
+uvicorn
