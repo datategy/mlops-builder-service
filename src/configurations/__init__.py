@@ -2,8 +2,8 @@ from functools import cache
 
 from pydantic import TypeAdapter
 
+from .build_agent import BuildAgentConfig
 from .database import DBConfig
-from .general import GeneralConfig
 from .storage import StorageConfig
 
 
@@ -13,8 +13,8 @@ def get_database_config() -> DBConfig:
 
 
 @cache
-def get_general_config() -> GeneralConfig:
-    return TypeAdapter(GeneralConfig).validate_python({})
+def get_build_agent_config() -> BuildAgentConfig:
+    return TypeAdapter(BuildAgentConfig).validate_python({})
 
 
 @cache
