@@ -20,10 +20,6 @@ repos:
     hooks:
     -   id: check-hooks-apply
     -   id: check-useless-excludes
--   repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
-    rev: v0.8.0
-    hooks:
-    -   id: pre-commit-update
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
