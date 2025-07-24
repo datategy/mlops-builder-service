@@ -3,7 +3,7 @@ from functools import cache
 
 from papai_unified_storage import Storage, filesystem
 
-from configurations import get_storage_config
+from src.configurations import get_storage_config
 from src.utils.exceptions import FilesNotFound
 
 
