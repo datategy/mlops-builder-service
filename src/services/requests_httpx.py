@@ -3,6 +3,7 @@ from typing import Any, Literal
 
 import httpx
 
+from src.schemas.atoms.has_under_str import HasDunderStr
 from src.utils.exceptions import MaxRetryErrors
 
 
@@ -36,7 +37,9 @@ class RetryTransport(httpx.HTTPTransport):
 
         if response.status_code in self.retry_status_forcelist:
             self.current_retry += 1
-            self.exception_group.append(httpx.HTTPStatusError(request=request, response=response))
+            self.exception_group.append(
+                httpx.HTTPStatusError("", request=request, response=response)
+            )
 
             if self.current_retry >= self.max_retry_on_status:
                 raise MaxRetryErrors("Max retries reached", self.exception_group)
@@ -54,7 +57,7 @@ class RetryTransport(httpx.HTTPTransport):
 
 def request(
     method: Literal["get", "put", "post"],
-    url: str | httpx.URL,
+    url: str | httpx.URL | HasDunderStr,
     payload: dict[str, Any] | None = None,
     query_params: dict[str, Any] | None = None,
     headers: dict | None = None,
@@ -63,6 +66,9 @@ def request(
 ) -> httpx.Response:
     if headers is None:
         headers = {}
+
+    if not isinstance(url, (str, httpx.URL)):
+        url = str(url)
 
     if method == "get" and payload is not None:
         raise ValueError("GET requests should not have a payload")
