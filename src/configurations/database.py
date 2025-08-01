@@ -1,6 +1,7 @@
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy import URL
+
+from src.utils.pydantic import AnyURLAsStr
 
 
 class BaseDBConfig(BaseSettings):
@@ -45,7 +46,7 @@ class ManualDBCredConfig(BaseDBConfig):
 
 
 class URLDBCredConfig(BaseDBConfig):
-    url: URL
+    url: AnyURLAsStr
 
 
 type DBConfig = ManualDBCredConfig | URLDBCredConfig

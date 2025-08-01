@@ -10,6 +10,10 @@ AnyHttpxURL = Annotated[
 ]
 """This type requires setting config `arbitrary_types_allowed` to `True`."""
 
+AnyURLAsStr = Annotated[
+    str, BeforeValidator(lambda value: AnyUrlTypeAdapter.validate_python(value) and str(value))
+]
+
 HttpUrlTypeAdapter = TypeAdapter(HttpUrl)
 HttpxURL = Annotated[
     URL,
