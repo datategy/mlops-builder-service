@@ -1,5 +1,6 @@
 """Read main artefact file (MLmodel.yaml and extract required info from it."""
 
+import logging
 from functools import cached_property
 from pathlib import Path
 
@@ -9,6 +10,8 @@ from src.schemas.molecules.artefacts.model_metadata import ModelMetadata
 from src.schemas.molecules.artefacts.python_env import PythonEnv
 
 from .remote_storage import get_fs
+
+logger = logging.getLogger(__name__)
 
 MAIN_MODEL_ARTEFACT_NAME = "MLmodel.yaml"
 
@@ -22,7 +25,7 @@ class RunArtefacts:
 
     @cached_property
     def model_metadata(self) -> ModelMetadata:
-        with get_fs().open_for_reading(self.ml_model_artefact_path, text=True) as file:
+        with get_fs().open_for_reading(self.ml_model_artefact_path.as_posix(), text=True) as file:
             ml_model_data = yaml.safe_load(file)
 
         return ModelMetadata.model_validate(ml_model_data)
@@ -31,7 +34,9 @@ class RunArtefacts:
     def python_env(self) -> PythonEnv:
         virtualenv_path = self.model_metadata.flavors.python_function.env.virtualenv
 
-        with get_fs().open_for_reading(virtualenv_path, text=True) as file:
+        with get_fs().open_for_reading(
+            (self.artefact_path / virtualenv_path).as_posix(), text=True
+        ) as file:
             virtualenv_data = yaml.safe_load(file)
 
         return PythonEnv.model_validate(virtualenv_data)
@@ -60,6 +65,7 @@ class RunArtefacts:
     def get_requirements_path(self) -> Path:
         requirements_path = self.artefact_path / REQUIREMENTS_FILE_NAME
         if not requirements_path.exists():
+            logger.error(f"Requirements file not found in the run's artefacts {requirements_path}.")
             raise FileNotFoundError("Requirements file not found in the run's artefacts.")
         return requirements_path
 
