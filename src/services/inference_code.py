@@ -1,8 +1,12 @@
+import logging
 from pathlib import Path
+from typing import cast
 
 from src.schemas.atoms.use_case_enum import UseCase
 
 from .remote_storage import get_fs
+
+logger = logging.getLogger(__name__)
 
 INFERENCE_CODE_ARTEFACT_FOLDER = Path("serving")
 """Name of the run's artefact folder where inference code is stored."""
@@ -46,17 +50,22 @@ class InferenceCode:
 
         local_inference_code_path = self.get_inference_code_path()
         fs.put(
-            local_inference_code_path.as_posix(), f"{self.inference_code_folder}/", recursive=True
+            (local_inference_code_path / "**").as_posix(),
+            self.inference_code_folder.as_posix(),
+            recursive=True,
         )
 
     def inference_code_exists(self):
         """check if inference code artefact already exists in remote storage."""
-        return get_fs().exists(self.inference_code_folder)
+        return get_fs().exists(self.inference_code_folder.as_posix())
 
     def get_remote_requirements_path(self):
         """check if remote requirements artefact already exists in remote storage."""
         requirements_path = self.inference_code_folder / REQUIREMENTS_FILE_NAME
-        if not get_fs().exists(requirements_path):
+        if not get_fs().exists(requirements_path.as_posix()):
+            logger.error(
+                f"Remote requirements file not found in the inference code artefact folder {self.inference_code_folder}."
+            )
             raise FileNotFoundError(
                 "Remote requirements file not found in the root of remote artefact folder."
             )
@@ -66,8 +75,9 @@ class InferenceCode:
     def get_requirements(self) -> list[str]:
         """Get the requirements from the remote requirements file."""
         requirements_path = self.get_remote_requirements_path()
-        with get_fs().open_for_reading(requirements_path, text=True) as file:
-            requirements = file.readlines()
+        with get_fs().open_for_reading(requirements_path.as_posix(), text=True) as file:
+            # because text=True, this is a list of strings
+            requirements = cast(list[str], file.readlines())
         return requirements
 
     def get_inference_code_path(self) -> Path:
