@@ -1,12 +1,13 @@
 from typing import Any
 
 import httpx
+from httpx import URL
 
 from src.services.requests_httpx import request
 
 
 class GitLabAgent:
-    def __init__(self, url: str, project_id: int, trigger_token: str, ref: str = "main"):
+    def __init__(self, url: URL, project_id: int, trigger_token: str, ref: str = "main"):
         self.url = url
         self.project_id = project_id
         self.trigger_token = trigger_token
@@ -22,6 +23,6 @@ class GitLabAgent:
         return response.json()["id"]
 
     @property
-    def trigger_url(self) -> str:
+    def trigger_url(self) -> URL:
         """Get the URL to trigger a pipeline."""
-        return f"{self.url}/trigger/pipeline"
+        return self.url.join("trigger/pipeline")
