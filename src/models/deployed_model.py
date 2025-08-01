@@ -19,7 +19,7 @@ class DeployedModel(Base):
     __tablename__ = "deployed_model"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    slug: Mapped[str] = mapped_column(nullable=False)
+
     model_interface_id: Mapped[int] = mapped_column(ForeignKey("model_interface.id"))
     model_interface: Mapped[ModelInterface] = relationship(
         "ModelInterface", back_populates="deployed_models"

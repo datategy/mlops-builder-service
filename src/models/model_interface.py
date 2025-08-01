@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from httpx import URL
-from slugify import slugify
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.schemas.atoms.life_status_enum import LifeStatus
+from src.schemas.atoms.use_case_enum import UseCase
 
 from ._base import Base
 
@@ -21,10 +21,9 @@ class ModelInterface(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     """Unique identifier of the model interface."""
-    friendly_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    """Friendly name of the model interface."""
-    slug: Mapped[str] = mapped_column(String(100), nullable=True)
-    """Another unique identifier of the model interface."""
+
+    use_case: Mapped[UseCase] = mapped_column(nullable=False)
+    """Use case for the model interface, e.g., classification, regression."""
 
     deployed_models: Mapped[list[DeployedModel]] = relationship(
         "DeployedModel", back_populates="model_interface"
@@ -44,6 +43,3 @@ class ModelInterface(Base):
 
     life_status: Mapped[LifeStatus] = mapped_column(nullable=False, default=LifeStatus.PENDING)
     """Current status of the model interface."""
-
-    def compute_slug(self):
-        self.slug = slugify(str(self.id) + "-" + self.friendly_name, max_length=100)
