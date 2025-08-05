@@ -8,15 +8,22 @@ class LifeStatus(StrEnum):
     ---
     title: Life status
     ---
-    stateDiagram
+    stateDiagram-v2
         [*] --> Pending
         Pending --> Building
-        Building --> Build_and_deploy_failed
-        Build_and_deploy_failed --> [*]
-        Building --> Build_and_deploy_cancelled
-        Build_and_deploy_cancelled --> [*]
-        Building --> Build_and_deploy_succeeded
-        Build_and_deploy_succeeded --> Pod_ready
+        Pending --> Deploying
+        Building --> Build_failed
+        Build_failed --> [*]
+        Building --> Build_cancelled
+        Build_cancelled --> [*]
+        Building --> Build_succeeded
+        Build_succeeded --> Deploying
+        Deploying --> Deploy_failed
+        Deploy_failed --> [*]
+        Deploying --> Deploy_cancelled
+        Deploy_cancelled --> [*]
+        Deploying --> Deploy_succeeded
+        Deploy_succeeded --> Pod_ready
         Pod_ready --> Pod_unreachable
         Pod_unreachable --> Pod_ready
         Pod_unreachable --> Deleted
@@ -55,13 +62,18 @@ class LifeStatus(StrEnum):
     """Deployment was deleted."""
 
 
-type GitLabLifeStatuses = Literal[
+type PipelineBuildStatuses = Literal[
     LifeStatus.BUILDING,
     LifeStatus.BUILD_FAILED,
     LifeStatus.BUILD_CANCELLED,
     LifeStatus.BUILD_SUCCEEDED,
+]
+
+type PipelineDeployStatuses = Literal[
     LifeStatus.DEPLOYING,
     LifeStatus.DEPLOY_FAILED,
     LifeStatus.DEPLOY_CANCELLED,
     LifeStatus.DEPLOY_SUCCEEDED,
 ]
+
+type PodStatuses = Literal[LifeStatus.POD_READY, LifeStatus.POD_UNREACHABLE, LifeStatus.POD_STOPPED]

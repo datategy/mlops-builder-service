@@ -17,9 +17,8 @@ router = APIRouter(tags=["model_interface"])
 @router.post("/model-interface")
 async def create_new_model_interface(model_interface: NewModelInterface):
     model_interface_db = model_interface.create_db_model()
-    with session_manager() as session:
+    with session_manager(autocommit=True) as session:
         session.add(model_interface_db)
-        session.flush()
 
     inference_code = InferenceCode(model_interface.model.artefacts_folder, model_interface.use_case)
     inference_code.copy_inference_code()
@@ -40,8 +39,9 @@ async def create_new_model_interface(model_interface: NewModelInterface):
     config = DEFAULT_MODEL_INTERFACE_CONFIG | {"model_collection": {"models": [model_config]}}
 
     pipeline_inputs = {
-        "response_url": "URL_OF_MLOPS_BUILDER_SERVICE",
-        "model_id": model_interface_db.deployed_models[0].id,
+        "response_host": "URL_OF_MLOPS_BUILDER_SERVICE",
+        "model_interface_id": model_interface_db.id,
+        "model_instance_id": model_interface_db.deployed_models[0].id,
         "model_python_version": artefacts.get_python_version(),
         "model_instance_include_remote_artefacts_paths": artefact_paths,
         "model_instance_requirements": requirements,

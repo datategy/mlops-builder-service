@@ -22,7 +22,7 @@ def get_engine():
 
 
 @contextmanager
-def session_manager(autocommit: bool = True):
+def session_manager(*, autocommit: bool = False):
     engine = get_engine()
 
     with Session(engine, expire_on_commit=False) as session:
