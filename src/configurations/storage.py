@@ -62,16 +62,16 @@ POSSIBLE_STORAGE = Literal[
 
 
 class StorageConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_nested_delimiter="__")
+    model_config = SettingsConfigDict(env_prefix="storage_", env_nested_delimiter="__")
 
-    storage_name: POSSIBLE_STORAGE = "file"
+    name: POSSIBLE_STORAGE = "file"
     """Storage implementation to use.
 
     See https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations
     and https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
     for a list of possible values.
     """
-    storage_options: StorageParameters = StorageParameters()
+    options: StorageParameters = StorageParameters()
     """Options used to instanciate the storage class corresponding to `STORAGE_NAME`.
 
     All the env var that start with this pattern are passed to the storage class

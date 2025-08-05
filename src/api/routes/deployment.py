@@ -16,7 +16,7 @@ router = APIRouter(tags=["model_interface"])
 general_config = get_general_config()
 
 
-@router.post("/model-interface")
+@router.post("/model-deployment/new")
 async def create_new_model_interface(model_interface: NewModelInterface):
     model_interface_db = model_interface.create_db_model()
     with session_manager(autocommit=True) as session:
