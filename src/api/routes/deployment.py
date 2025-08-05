@@ -2,7 +2,7 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from src.configurations import get_build_agent_config
+from src.configurations import get_build_agent_config, get_general_config
 from src.configurations.default_interface_config import DEFAULT_MODEL_INTERFACE_CONFIG
 from src.models.model_interface import ModelInterface
 from src.schemas.organisms.model_interface import NewModelInterface
@@ -12,6 +12,8 @@ from src.services.inference_code import InferenceCode
 from src.utils.database import session_manager
 
 router = APIRouter(tags=["model_interface"])
+
+general_config = get_general_config()
 
 
 @router.post("/model-interface")
@@ -39,7 +41,7 @@ async def create_new_model_interface(model_interface: NewModelInterface):
     config = DEFAULT_MODEL_INTERFACE_CONFIG | {"model_collection": {"models": [model_config]}}
 
     pipeline_inputs = {
-        "response_host": "URL_OF_MLOPS_BUILDER_SERVICE",
+        "response_host": general_config.host,
         "model_interface_id": model_interface_db.id,
         "model_instance_id": model_interface_db.deployed_models[0].id,
         "model_python_version": artefacts.get_python_version(),
