@@ -25,7 +25,7 @@ dependencies = [
     "pyyaml",  # read logger config files
     "uvicorn==0.34.0",
     "fastapi==0.115.*",
-    "papai-unified-storage~=0.17.0",  # storage interface
+    "papai-unified-storage~=0.23.0",  # storage interface
     "joblib==1.4.*",  # data writer / loader
     "sqlalchemy==2.0.*",  # database connection
     "psycopg2-binary==2.9.*",  # database connection
